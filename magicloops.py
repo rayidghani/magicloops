@@ -21,7 +21,7 @@ import time
 
 %matplotlib inline
 
-def define_clfs_params:
+def define_clfs_params():
 
     clfs = {'RF': RandomForestClassifier(n_estimators=50, n_jobs=-1),
         'ET': ExtraTreesClassifier(n_estimators=10, n_jobs=-1, criterion='entropy'),
@@ -47,8 +47,9 @@ def define_clfs_params:
     'SVM' :{'C' :[0.00001,0.0001,0.001,0.01,0.1,1,10],'kernel':['linear']},
     'KNN' :{'n_neighbors': [1,5,10,25,50,100],'weights': ['uniform','distance'],'algorithm': ['auto','ball_tree','kd_tree']}
            }
+    return clfs, grid
 
-def clf_loop():
+def clf_loop(models_to_run, clfs, grid, X, y):
     for n in range(1, 2):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
         for index,clf in enumerate([clfs[x] for x in models_to_run]):
@@ -103,11 +104,13 @@ def precision_at_k(y_true, y_scores, k):
 
 
 def main(): 
-
-    clfs,params = define_clfs_params()
+    clfs, grid = define_clfs_params()
     models_to_run=['KNN','RF','LR','ET','AB','GB','NB','DT']
     #get X and y
-    magic_loop(models_to_run,clfs,params,X,y)
+    features  =  ['RevolvingUtilizationOfUnsecuredLines', 'DebtRatio', 'age', 'NumberOfTimes90DaysLate']
+    X = df[features]
+    y = df.SeriousDlqin2yrs
+    clf_loop(models_to_run, clfs,grid, X,y)
 
 
 
