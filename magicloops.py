@@ -87,12 +87,18 @@ def define_clfs_params(grid_size):
     else:
         return 0, 0
 
+def joint_sort_descending(l1, l2):
+    # l1 and l2 have to be numpy arrays
+    idx = np.argsort(l1)[::-1]
+    return l1[idx], l2[idx]
+
 def generate_binary_at_k(y_scores, k):
     cutoff_index = int(len(y_scores) * (k / 100.0))
     test_predictions_binary = [1 if x < cutoff_index else 0 for x in range(len(y_scores))]
     return test_predictions_binary
 
 def precision_at_k(y_true, y_scores, k):
+    y_scores, y_true = joint_sort_descending(np.array(y_scores), np.array(y_true))
     preds_at_k = generate_binary_at_k(y_scores, k)
     #precision, _, _, _ = metrics.precision_recall_fscore_support(y_true, preds_at_k)
     #precision = precision[1]  # only interested in precision for label 1
