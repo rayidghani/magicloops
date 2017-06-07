@@ -1,0 +1,11 @@
+if 'feature_importances_' in dir(model):
+                            feature_importance = model.feature_importances_
+                        else:
+                            feature_importance = None
+                        # Here we get the predicted results from the model
+                        # SVC does not have 'predict_proba', so we need to use 'decision_function'
+                        
+                        if hasattr(clf, 'predict_proba'):
+                            yscores = model.predict_proba(X_test_sel)[:,1]
+                        else:
+                            yscores = model.decision_function(X_test_sel)
