@@ -148,6 +148,9 @@ def main():
                                                                 recall_at_k(validation_set[current_outcome],pred_probs, 50),
                                                                 roc_auc_score(validation_set[current_outcome], pred_probs)]
 
+                            # plot precision recall graph
+                            # we'll show them here but you can also save them to disk
+                            plot_precision_recall_n(validation_set[current_outcome], pred_probs, clf, 'show')
                             # write results to csv as they come in so we always have something to see even if models runs for days
                             with open(outfile, "a") as myfile:
                                 csvwriter = csv.writer(myfile, dialect='excel', quoting=csv.QUOTE_ALL)
