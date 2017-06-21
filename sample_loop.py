@@ -18,20 +18,34 @@ from mlfunctions import *
 
 
 def main():
+
     print 'Number of arguments:', len(sys.argv), 'arguments.'
     print 'Argument List:', str(sys.argv)
 
+    # parse input parameters
+
+    # csv data file to be used as input
     infile = sys.argv[1]
+
+    # the filename we want to write results to
     outfile = sys.argv[2]
+
+    # which model(s) to run
     model = sys.argv[3]
+
+    # which parameter grid do we want to use (test, small, large)
     grid_size = sys.argv[4]
 
+    #read the csv data
     data = pd.read_csv(infile)
 
+    # outcome variables we want to loop over
     outcomes = ['30_day_readmits', '60_day_readmits','180_day_readmits']
     
+    # validation dates we want to loop over
     validation_dates = ['2012-04-01', '2012-10-01', '2013-04-01']
-    
+
+    # define feature groups
     demographic_predictors = ['age', 'gender', 'race']
     admission_predictors = ['num_visits_so_far','avg_los_so_far','min_los_so_far','max_los_so_far','std_los_so_far']
     sensor_predictors = ['reading1', 'reading2', 'reading3']
@@ -45,9 +59,12 @@ def main():
         models_to_run = []
         models_to_run.append(model)
 
-    #grid_size = 'test' # can be small or large
     clfs, grid = define_clfs_params(grid_size)
+
+    # which feature/predictor sets do we want to use in our analysis
     predictor_sets = [demographic_predictors, admission_predictors,sensor_predictors,survey_predictors]
+    
+    # generate all possible subsets of the feature/predictor groups
     predictor_subsets = get_subsets(predictor_sets)
 
     all_predictors=[]
@@ -55,14 +72,21 @@ def main():
         merged = list(itertools.chain.from_iterable(p))
         all_predictors.append(merged)
 
+    # write header for the csv
     with open(outfile, "w") as myfile:
         myfile.write("model_type ,clf, parameters, outcome, validation_date, group,train_set_size, validation_set_size,predictors,baseline,precision_at_5,precision_at_10,precision_at_20,precision_at_30,precision_at_40,precision_at_50,recall_at_5,recall_at_10,recall_at_20,recall_at_30,recall_at_40, ecall_at_50,auc-roc")
 
+    # define dataframe to write results to
     results_df =  pd.DataFrame(columns=('model_type','clf', 'parameters', 'outcome', 'validation_date', 'group',
                                         'train_set_size', 'validation_set_size','predictors',
                                         'baseline','precision_at_5','precision_at_10','precision_at_20','precision_at_30','precision_at_40',
                                         'precision_at_50','recall_at_5','recall_at_10','recall_at_20','recall_at_30','recall_at_40',
                                         'recall_at_50','auc-roc'))
+
+    # the magic loop starts here
+    # we will loop over models, parameters, outcomes, validation_Dates
+    # and store several evaluation metrics
+
     for index,clf in enumerate([clfs[x] for x in models_to_run]):
         parameter_values = grid[models_to_run[index]]
         for p in ParameterGrid(parameter_values):
@@ -120,6 +144,7 @@ def main():
                                                                 recall_at_k(validation_set[current_outcome],pred_probs, 50),
                                                                 roc_auc_score(validation_set[current_outcome], pred_probs)]
 
+                            # write results to csv as they come in so we always have something to see even if models runs for days
                             with open(outfile, "a") as myfile:
                                 csvwriter = csv.writer(myfile, dialect='excel', quoting=csv.QUOTE_ALL)
                                 strp = str(p)
@@ -131,6 +156,7 @@ def main():
                             print 'Error:',e
                             continue
     
+    # write final dataframe to csv
     dfoutfile = 'df_' + outfile
     results_df.to_csv(dfoutfile, index=False)
 
