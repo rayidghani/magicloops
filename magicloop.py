@@ -109,16 +109,16 @@ def main():
                             else:
                                 raise ValueError('value of outcome is unknown')                 
                         
-                            train_set = group_subset[group_subset[prediction_time] <= datetime.strptime(validation_date, '%Y-%m-%d') - timedelta(days=delta)]
+                            train_set = data[data[prediction_time] <= datetime.strptime(validation_date, '%Y-%m-%d') - timedelta(days=delta)]
                             # fill in missing values for train set using just the train set
                             # we'll do it a very naive way here but you should think more carefully about this first
                             train_set.fillna(train_set.mean(), inplace=True)
                             train_set.dropna(axis=1, how='any', inplace=True)
                             
-                            validation_set = group_subset[group_subset[prediction_time] > datetime.strptime(validation_date, '%Y-%m-%d') - timedelta(days=0)]
+                            validation_set = data[data[prediction_time] > datetime.strptime(validation_date, '%Y-%m-%d') - timedelta(days=0)]
                             # fill in missing values for validation set using all the data
                             # we'll do it a very naive way here but you should think more carefully about this first
-                            validation_set.fillna(group_subset.mean(), inplace=True)
+                            validation_set.fillna(data.mean(), inplace=True)
                             validation_set.dropna(axis=1, how='any', inplace=True)
 
                             print predictor
