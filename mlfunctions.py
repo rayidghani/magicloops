@@ -1,3 +1,11 @@
+"""mlfunctions.py
+This contains helper functions for doing machine learning.
+You can import this in your code
+"""
+
+
+
+
 # Import Statements
 from __future__ import division
 import pandas as pd
@@ -29,6 +37,19 @@ import itertools
 # modeling helper functions
 
 def define_clfs_params(grid_size):
+
+    """
+This functions defines parameter grid for all the classifiers
+
+Args:
+    grid_size: how big of a grid do you want. it can be test, small, or large
+
+Returns:
+    a set of model and parameters
+
+Raises:
+    KeyError: Raises an exception.
+"""
 
     clfs = {'RF': RandomForestClassifier(n_estimators=50, n_jobs=-1),
         'ET': ExtraTreesClassifier(n_estimators=10, n_jobs=-1, criterion='entropy'),
