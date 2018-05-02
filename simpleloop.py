@@ -25,6 +25,12 @@ import seaborn as sns
 NOTEBOOK = 0
 
 def define_clfs_params(grid_size):
+    """Define defaults for different classifiers.
+    Define three types of grids:
+    Test: for testing your code
+    Small: small grid
+    Large: Larger grid that has a lot more parameter sweeps
+    """
 
     clfs = {'RF': RandomForestClassifier(n_estimators=50, n_jobs=-1),
         'ET': ExtraTreesClassifier(n_estimators=10, n_jobs=-1, criterion='entropy'),
@@ -86,6 +92,8 @@ def define_clfs_params(grid_size):
     else:
         return 0, 0
 
+# a set of helper function to do machine learning evalaution
+
 def joint_sort_descending(l1, l2):
     # l1 and l2 have to be numpy arrays
     idx = np.argsort(l1)[::-1]
@@ -138,6 +146,8 @@ def plot_precision_recall_n(y_true, y_prob, model_name):
 
 
 def clf_loop(models_to_run, clfs, grid, X, y):
+    """Runs the loop using models_to_run, clfs, gridm and the data
+    """
     results_df =  pd.DataFrame(columns=('model_type','clf', 'parameters', 'auc-roc','p_at_5', 'p_at_10', 'p_at_20'))
     for n in range(1, 2):
         # create training and valdation sets
@@ -168,17 +178,29 @@ def clf_loop(models_to_run, clfs, grid, X, y):
 
 def main():
 
+    # define grid to use: test, small, large
     grid_size = 'test'
     clfs, grid = define_clfs_params(grid_size)
+
+    # define models to run
     models_to_run=['RF','DT','KNN', 'ET', 'AB', 'GB', 'LR', 'NB']
 
+    # load data from csv
     df = pd.read_csv("/Users/rayid/Projects/uchicago/Teaching/MLPP-2017/Homeworks/Assignment 2/credit-data.csv")
+
+    # select features to use
     features  =  ['RevolvingUtilizationOfUnsecuredLines', 'DebtRatio', 'age', 'NumberOfTimes90DaysLate']
     X = df[features]
+    
+    # define label
     y = df.SeriousDlqin2yrs
+
+    # call clf_loop and store results in results_df
     results_df = clf_loop(models_to_run, clfs,grid, X,y)
     if NOTEBOOK == 1:
         results_df
+
+    # save to csv
     results_df.to_csv('results.csv', index=False)
 
 
